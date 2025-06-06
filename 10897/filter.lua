@@ -30,7 +30,7 @@ function Blocks(blocks)
             if is_delimiter(blocks[j], 'closing') then
                local md_blocks = pandoc.Blocks { table.unpack(blocks, i + 1, j - 1) }
                local inlines = pandoc.utils.blocks_to_inlines(md_blocks)
-               local md = pandoc.write(pandoc.Pandoc(pandoc.Plain(inlines)), 'ansi', { columns = 99999 })
+               local md = pandoc.write(pandoc.Pandoc(pandoc.Plain(inlines)), 'plain', { wrap_text = 'none' })
                local new_blocks = pandoc.read(md, 'markdown').blocks
                blocks = pandoc.Blocks { table.unpack(blocks, 1, i - 1) }
                   .. new_blocks
