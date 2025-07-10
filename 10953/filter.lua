@@ -25,13 +25,10 @@ function Blocks(blocks)
          while blocks[j] and blocks[j].tag == 'Header' and blocks[j].level == first_header.level do
             ol.content:insert(pandoc.Plain(blocks[j].content))
             blocks:remove(j)
-            j = j + 1
          end
          blocks[i] = ol
-         i = j
-      else
-         i = i + 1
       end
+      i = i + 1
    end
    return blocks
 end
