@@ -18,8 +18,14 @@ function Blocks(blocks)
       if blocks[i].tag == 'Header' and blocks[i].level >= 5 then
          local first_header = blocks[i]
          ---@cast first_header Header
-         local list_attributes = first_header.level == 5 and pandoc.ListAttributes(1, 'LowerAlpha', 'Period')
-            or pandoc.ListAttributes(1, 'Decimal', 'TwoParens')
+         local list_attributes
+         if first_header.level == 5 then
+            list_attributes = pandoc.ListAttributes(1, 'LowerAlpha', 'Period')
+         elseif first_header.level == 6 then
+            list_attributes = pandoc.ListAttributes(1, 'Decimal', 'TwoParens')
+         elseif first_header.level == 7 then
+            list_attributes = pandoc.ListAttributes(1, 'LowerRoman', 'Period')
+         end
          local ol = pandoc.OrderedList({ pandoc.Plain(first_header.content) }, list_attributes)
          local j = i + 1
          while blocks[j] and blocks[j].tag == 'Header' and blocks[j].level == first_header.level do
