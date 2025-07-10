@@ -1,13 +1,37 @@
 ---Header filter function
 ---@param header Header
----@return (OrderedList | Header)
+---@return Header?
 function Header(header)
-   if header.level == 5 then
-      return pandoc.OrderedList(pandoc.Plain(header.content), pandoc.ListAttributes(1, 'LowerAlpha', 'Period'))
-   elseif header.level == 6 then
-      return pandoc.OrderedList(pandoc.Plain(header.content), pandoc.ListAttributes(1, 'Decimal', 'TwoParens'))
+   if header.level < 5 then
+      header.content:insert(1, pandoc.RawInline('html', '<span class="header-section-text">'))
+      header.content:insert(pandoc.RawInline('html', '</span>'))
+      return header
    end
-   header.content:insert(1, pandoc.RawInline('html', '<span class="header-section-text">'))
-   header.content:insert(pandoc.RawInline('html', '</span>'))
-   return header
+end
+
+---Blocks filter function
+---@param blocks (Blocks | Block[])
+---@return Blocks
+function Blocks(blocks)
+   local i = 1
+   while i <= #blocks do
+      if blocks[i].tag == 'Header' and blocks[i].level >= 5 then
+         local first_header = blocks[i]
+         ---@cast first_header Header
+         local list_attributes = first_header.level == 5 and pandoc.ListAttributes(1, 'LowerAlpha', 'Period')
+            or pandoc.ListAttributes(1, 'Decimal', 'TwoParens')
+         local ol = pandoc.OrderedList({ pandoc.Plain(first_header.content) }, list_attributes)
+         local j = i + 1
+         while blocks[j] and blocks[j].tag == 'Header' and blocks[j].level == first_header.level do
+            ol.content:insert(pandoc.Plain(blocks[j].content))
+            blocks:remove(j)
+            j = j + 1
+         end
+         blocks[i] = ol
+         i = j
+      else
+         i = i + 1
+      end
+   end
+   return blocks
 end
